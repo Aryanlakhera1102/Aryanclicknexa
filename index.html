@@ -233,4 +233,544 @@ h2{font-size:clamp(2.4rem,6vw,5.2rem);text-shadow:0 3px 0 var(--cobalt),0 6px 0 
 .cta-row{display:flex;flex-wrap:wrap;justify-content:center;gap:16px}
 .avail{display:inline-flex;align-items:center;margin-bottom:26px;padding:.5em 1.1em;border-radius:99px;background:var(--cream);color:var(--deep);border:3px solid var(--deep);font:800 .85rem var(--f-d);letter-spacing:.08em;text-transform:uppercase}
 footer{position:relative;z-index:2;background:var(--deep);padding:34px 0;color:var(--mute);font-size:.95rem}
-footer .wrap{display:flex;justify-content:space-between;flex-wrap:wr
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+/* rail */
+#rail{position:fixed;right:14px;top:50%;height:56vh;width:44px;z-index:60;transform:translateY(-50%) perspective(700px) rotateY(-22deg);pointer-events:none}
+.rail-track{position:absolute;left:50%;top:0;bottom:0;width:16px;margin-left:-8px;border-radius:99px;background:linear-gradient(90deg,#05041a,#2b2672 50%,#05041a);border:3px solid var(--deep);box-shadow:inset 0 3px 6px rgba(0,0,0,.6),0 0 26px rgba(59,91,255,.4),0 0 0 2px rgba(255,255,255,.14)}
+.rail-fill{position:absolute;left:0;right:0;top:0;height:0;border-radius:99px;background:linear-gradient(var(--cobalt),var(--violet))}
+.rail-knob{position:absolute;left:50%;top:0;width:46px;height:46px;margin:0 0 0 -23px;border-radius:14px;background:linear-gradient(150deg,#ffe27a,var(--sun));border:3px solid var(--deep);box-shadow:0 6px 0 var(--deep),0 0 24px rgba(255,207,63,.55);display:grid;place-items:center;font:800 .78rem var(--f-d);color:var(--deep);will-change:transform}
+.rail-label{position:absolute;top:calc(100% + 26px);left:50%;transform:translateX(-50%);writing-mode:vertical-rl;font:800 .7rem var(--f-d);letter-spacing:.24em;color:var(--sun);text-shadow:0 2px 0 var(--deep);white-space:nowrap}
+
+/* cursor */
+.cur,.ring{position:fixed;left:0;top:0;z-index:998;pointer-events:none;display:none}
+.has-cursor .cur,.has-cursor .ring{display:grid}
+.has-cursor,.has-cursor *{cursor:none!important}
+.cur{width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--sun);border:2px solid var(--deep)}
+.ring{width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;border:2px solid var(--sun);place-items:center;font:800 .68rem var(--f-d);letter-spacing:.08em;color:var(--deep);transition:width .25s,height .25s,margin .25s,background .25s,border-color .25s,opacity .25s}
+.ring.hov{width:64px;height:64px;margin:-32px 0 0 -32px;background:rgba(255,207,63,.25)}
+.ring.lbl{width:92px;height:92px;margin:-46px 0 0 -46px;background:var(--sun);border:3px solid var(--deep)}
+.ring.lbl.o{background:var(--mint)}.ring.lbl.d{background:var(--coral)}
+.ring.dn{opacity:0}
+
+/* responsive */
+@media (max-width:1000px){
+  #home{grid-template-columns:1fr;padding-top:120px;gap:40px}
+  .stage{order:-1;width:min(360px,80vw)}
+  .about,.cases{grid-template-columns:1fr}
+  .about .side{position:relative;top:0;max-width:420px}
+  .enjoy-grid{grid-template-columns:repeat(2,1fr)}
+  .pc{flex-basis:80vw}
+}
+@media (max-width:760px){
+  #nav ul{display:none}#burger{display:block}#nav{gap:14px}
+  #rail{right:6px;width:28px}.rail-knob{width:32px;height:32px;margin-left:-16px;border-radius:10px;font-size:0}
+  .rail-label{display:none}
+  .facts,.cgrid{grid-template-columns:1fr}
+  .svc-h{grid-template-columns:44px 1fr 44px;gap:10px}.svc-h .ic{display:none}
+  .svc-p .in{padding-left:54px}
+  .coin{width:140px;height:140px;font-size:.66rem}.coin b{font-size:2rem}
+  .enjoy-grid{grid-template-columns:1fr 1fr;gap:14px}
+  .ecard{min-height:170px;padding:18px 16px}.ecard h3{font-size:1.15rem}
+  .badge.b2{right:-2%}
+}
+html.rm .hwrap{height:auto;overflow-x:auto;padding:30px 0 60px}
+html.rm .badge,html.rm .tag,html.rm .blob,html.rm .dot{animation:none}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;transition-duration:.001s!important}}
+</style>
+</head>
+<body>
+
+<div id="loader" role="status" aria-live="polite">
+  <div class="ld-in"><div class="disp">LOADING ARYAN'S WORLD</div><div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div><div class="ld-n" id="ldN">0%</div></div>
+</div>
+<div class="cur" id="cur"></div><div class="ring" id="ring"></div>
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<header>
+  <nav id="nav" aria-label="Main">
+    <a href="#home" class="logo" data-go aria-label="Aryan Lakhera — home">AL</a>
+    <ul>
+      <li><a href="#home" data-go>Home</a></li><li><a href="#about" data-go>About</a></li><li><a href="#work" data-go>Work</a></li>
+      <li><a href="#experience" data-go>Experience</a></li><li><a href="#skills" data-go>Skills</a></li><li><a href="#services" data-go>Services</a></li><li><a href="#contact" data-go>Contact</a></li>
+    </ul>
+    <button id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><i></i><i></i><i></i></button>
+  </nav>
+  <div id="menu" aria-hidden="true">
+    <a href="#home" data-go>Home</a><a href="#about" data-go>About</a><a href="#work" data-go>Work</a><a href="#experience" data-go>Experience</a><a href="#skills" data-go>Skills</a><a href="#services" data-go>Services</a><a href="#contact" data-go>Contact</a>
+  </div>
+</header>
+
+<div id="rail" aria-hidden="true"><div class="rail-track"><div class="rail-fill" id="railFill"></div></div><div class="rail-knob" id="knob"><span id="pct">0</span></div><div class="rail-label" id="railLabel">HOME</div></div>
+
+<main>
+<!-- HERO -->
+<section id="home" data-sec="HOME" aria-label="Introduction">
+  <div class="hero-copy">
+    <div class="hero-meta" id="heroMeta"><span class="chip">Web Developer</span><span class="chip">E-commerce Specialist</span><span class="chip">Junior Analyst</span></div>
+    <div class="who" id="heroWho">ARYAN LAKHERA</div>
+    <h1 class="h1" id="heroH1"><span class="ln"><span>WEB EXPERIENCES</span></span><span class="ln"><span>THAT MAKE BUSINESSES</span></span><span class="ln"><span>LOOK BETTER.</span></span></h1>
+    <p class="hero-sub" id="heroSub">Web Developer specializing in WordPress, Shopify, WooCommerce and high-converting digital experiences.</p>
+    <div class="hero-cta" id="heroCta">
+      <a class="btn mag" href="#work" data-go>See selected work</a>
+      <a class="btn blue ghost mag" href="#contact" data-go>Let's talk</a>
+    </div>
+  </div>
+  <div class="stage" id="stage">
+    <div class="blob"></div>
+    <div class="portrait" id="heroPortrait">
+      <img id="portraitImg" src="https://clicknexasolution.com/wp-content/uploads/2026/07/3-removebg-preview.png" alt="Portrait of Aryan Lakhera" decoding="async">
+      <div class="ph">Add your portrait<br>in PORTRAIT_URL</div>
+    </div>
+    <div class="badge b1"><small>Location</small>Indore, India</div>
+    <div class="badge b2"><small>Status</small><span class="dot"></span>Available for selected opportunities</div>
+    <div class="badge b3"><small>Stack</small>WordPress · Shopify · Woo</div>
+  </div>
+  <div class="scroll-hint" aria-hidden="true"><i></i>SCROLL</div>
+</section>
+
+<!-- STATEMENT -->
+<section class="stmt clear" data-sec="HOME" aria-label="Statement">
+  <div class="wrap">
+    <p class="big" id="stmtBig">I build digital experiences for brands that want to be remembered.</p>
+    <p class="sub">I work across WordPress, Shopify, WooCommerce and custom web experiences, combining design, development, performance and business thinking.</p>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="sec alt" data-sec="ABOUT">
+  <div class="wrap about">
+    <div class="side">
+      <div class="pcard toy tilt" data-tilt>
+        <div class="portrait" id="aboutPortrait"><img src="https://clicknexasolution.com/wp-content/uploads/2026/07/3-removebg-preview.png" alt="Aryan Lakhera" loading="lazy"><div class="ph">Portrait</div></div>
+      </div>
+      <div class="coin" data-rv-coin><div><b>100+</b>websites delivered with the Click Nexa Digital Solution team</div></div>
+    </div>
+    <div>
+      <h2 data-rv>MORE THAN A DEVELOPER.</h2>
+      <p>Hi 👋 I'm Aryan, a Web Developer and founder associated with Click Nexa Digital Solution. I work with designers, developers and e-commerce specialists to create websites that are modern, fast, conversion-focused and aligned with business goals.</p>
+      <p>Day to day, that means building and customizing WordPress and Shopify stores, configuring WooCommerce, fixing performance and SEO issues, and translating what a client actually needs into a working website — not just a visual mockup.</p>
+      <p>Alongside client work, I currently work as a Junior Analyst in Revenue Management &amp; Support (RMS) at WM, which strengthens the analytical, process and business side of how I approach projects.</p>
+      <div class="facts">
+        <div class="fact"><small>Location</small><span>Indore, India</span></div>
+        <div class="fact"><small>Current role</small><span>Junior Analyst, RMS at WM</span></div>
+        <div class="fact"><small>Also</small><span>Founder, Click Nexa Digital Solution</span></div>
+        <div class="fact"><small>Focus</small><span>WordPress, Shopify, WooCommerce</span></div>
+      </div>
+      <div class="strengths"><span class="chip">Business thinking</span><span class="chip">Analytical</span><span class="chip">Hands-on builder</span><span class="chip">Performance minded</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ENJOY -->
+<section class="sec" data-sec="ABOUT" aria-labelledby="enjoyH">
+  <div class="wrap">
+    <h2 id="enjoyH" data-rv>WHAT I ACTUALLY ENJOY</h2>
+    <div class="enjoy-grid" id="enjoyGrid"></div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work" data-sec="WORK" aria-labelledby="workH">
+  <div class="wrap work-head">
+    <h2 id="workH" data-rv>SELECTED WORK</h2>
+    <p>Real websites. Real brands. Real execution.</p>
+  </div>
+  <div class="hwrap" id="hwrap">
+    <div class="htrack" id="htrack"></div>
+    <div class="hcount"><span id="hnum">01 / 12</span><div class="hbar"><i id="hbar"></i></div></div>
+  </div>
+</section>
+
+<!-- CASES -->
+<section id="cases" class="sec alt" data-sec="WORK" aria-labelledby="casesH">
+  <div class="wrap">
+    <h2 id="casesH" data-rv>CASE FILES</h2>
+    <p class="lead" style="margin-top:20px">Pick a project to open its file.</p>
+    <div class="cases">
+      <div class="tabs" role="tablist" aria-label="Case studies" id="tabs"></div>
+      <div class="cpanel toy" id="cpanel" role="tabpanel" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience" class="sec" data-sec="EXPERIENCE" aria-labelledby="expH">
+  <div class="wrap">
+    <h2 id="expH" data-rv>THE STORY SO FAR</h2>
+    <div class="tl" id="tl">
+      <div class="tl-line"><i id="tlFill"></i></div>
+      <div class="tli">
+        <div class="when">2026 — PRESENT</div>
+        <h3>Junior Analyst, Revenue Management &amp; Support</h3>
+        <p>WM (Waste Management). Working inside the RMS team, which sharpens the analytical, process and business side of how I plan and deliver web projects.</p>
+      </div>
+      <div class="tli">
+        <div class="when">CLICK NEXA DIGITAL SOLUTION</div>
+        <h3>Founder &amp; Web Developer</h3>
+        <p>Building and customizing WordPress, Shopify and WooCommerce websites with a team that has delivered 100+ sites. Performance, technical SEO, migrations and turning client requirements into working stores.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills" class="sec alt" data-sec="SKILLS" aria-labelledby="skH">
+  <div class="wrap">
+    <h2 id="skH" data-rv>SKILL UNIVERSE</h2>
+    <p class="lead" style="margin-top:20px">Grab a tag and toss it around.</p>
+    <div class="tier"><h3>Core <span>what I build with every day</span></h3><div class="tags" id="t1"></div></div>
+    <div class="tier"><h3>Supporting <span>what makes the build solid</span></h3><div class="tags" id="t2"></div></div>
+    <div class="tier"><h3>Secondary exposure <span>familiar, not my main tools</span></h3><div class="tags" id="t3"></div></div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" class="sec cream" data-sec="SERVICES" aria-labelledby="svH">
+  <div class="wrap">
+    <h2 id="svH" data-rv>SERVICES</h2>
+    <div class="svcs" id="svcs"></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="sec" data-sec="CONTACT" aria-labelledby="ctH">
+  <div class="wrap">
+    <div class="avail"><span class="dot"></span>Available for selected opportunities</div>
+    <h2 id="ctH">LET'S BUILD SOMETHING PEOPLE REMEMBER.</h2>
+    <p class="lead">Have a store to launch, a site to rebuild or something slow that needs fixing? Say hello on LinkedIn, or browse more of the team's work.</p>
+    <div class="cta-row">
+      <a class="btn mag" data-cursor="OPEN" data-o href="https://www.linkedin.com/in/aryanlakhera1102" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn ghost mag" data-cursor="OPEN" data-o href="https://github.com/Aryanlakhera1102" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn ghost mag" data-cursor="OPEN" data-o href="https://clicknexasolution.com/portfolio/" target="_blank" rel="noopener">Click Nexa portfolio</a>
+    </div>
+  </div>
+</section>
+</main>
+<footer><div class="wrap"><span>© 2026 Aryan Lakhera · Indore, India</span><span>Built by hand, with too many floating shapes.</span></div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+/* =============================================================
+   EDIT ME — content & images
+   ============================================================= */
+const PORTRAIT_URL = 'https://clicknexasolution.com/wp-content/uploads/2026/07/3-removebg-preview.png';
+
+// Optional: override a project's screenshot with your own image from Google Drive.
+// Share the file publicly, copy its file ID from the share link, then use:
+//   azse: 'https://drive.google.com/thumbnail?id=YOUR_FILE_ID&sz=w1600'
+// Anything left empty uses a live screenshot of the real website.
+const SHOTS = {
+  // aramya:'', littlejules:'', kultivatedkarats:'', aaramya:'', dramaincloset:'', azse:'',
+  // hoverit:'', clicknexa:'', indianhousemakers:'', essencevault:'', oceanofessence:'', roomsync:''
+};
+
+// Optional per-project details (shown on cards and case files only when filled in).
+// Fields: category, platform, role, year, industry, type, tech, contribution, challenge, approach
+const DETAILS = {
+  clicknexa:{category:'Agency website'},
+  roomsync:{category:'Web app'},
+  // azse:{industry:'', platform:'', contribution:'', type:'', tech:'', challenge:'', approach:''},
+};
+
+const PROJECTS = [
+  {id:'aramya',n:'Aramya',u:'https://aramya.in/'},
+  {id:'littlejules',n:'Little Jules',u:'https://littlejuels.com/'},
+  {id:'kultivatedkarats',n:'Kultivated Karats',u:'https://kultivatedkarats.com/'},
+  {id:'aaramya',n:'Aaramya',u:'https://aaramya.com/'},
+  {id:'dramaincloset',n:'Drama in Closet',u:'https://dramaincloset.com/'},
+  {id:'azse',n:'AZSE',u:'https://azse.in/'},
+  {id:'hoverit',n:'Hoverit',u:'https://hoverit.in/'},
+  {id:'clicknexa',n:'Click Nexa About',u:'https://clicknexasolution.com/about-us/'},
+  {id:'indianhousemakers',n:'Indian House Makers',u:'https://indianhousemakers.com/'},
+  {id:'essencevault',n:'The Essence Vault',u:'https://www.theessencevault.co.uk/'},
+  {id:'oceanofessence',n:'Ocean of Essence',u:'https://oceanofessence.com/'},
+  {id:'roomsync',n:'RoomSync Task Manager',u:'https://roomsync-task-manager-1vo6.arcada.app/#/login'}
+];
+const CASE_IDS = ['azse','hoverit','oceanofessence','littlejules','essencevault','indianhousemakers','aramya'];
+
+const ENJOY = [
+  ['🧱','Building websites','c-sun'],['🛒','E-commerce','c-mint'],['🧪','UI experimentation','c-coral'],['🔌','WordPress','c-cobalt'],
+  ['🛍️','Shopify','c-cream'],['🎨','Creative frontend work','c-violet'],['🚀','Learning new technology','c-sun'],['🧠','Business problem solving','c-mint']
+];
+const CORE = ['WordPress','Shopify','WooCommerce','HTML','CSS','JavaScript','Elementor','Responsive Web Design','E-commerce'];
+const SUPPORT = ['Website Performance','Technical SEO','Theme Customization','Plugin Configuration','API Integrations','Website Migration','Figma','Git / GitHub','cPanel / Hosting'];
+const SECOND = ['React','Node.js','Firebase','SQL','Basic software development (incl. Java)'];
+const SERVICES = [
+  ['WordPress Development','Custom themes, Elementor builds and plugin setups that stay easy for you to edit.',['Theme and template customization','Elementor page building','Plugin configuration and cleanup']],
+  ['Shopify Development','Store setup and theme customization that turns browsers into buyers.',['Theme customization','Product and collection structure','App and integration setup']],
+  ['WooCommerce Development','WordPress stores with the checkout, shipping and payment flows your business needs.',['Store configuration','Checkout and payment setup','Product and catalog structure']],
+  ['Custom Website Development','Hand-built HTML, CSS and JavaScript when a template will not do.',['Responsive layouts','Interactive components','Clean, maintainable code']],
+  ['Website Redesign','A fresh look and a clearer structure, without losing what already works.',['UI refresh','Improved navigation and flow','Mobile-first rebuild']],
+  ['E-commerce Development','From catalog to cart to checkout, built around how your customers actually shop.',['Store architecture','Conversion-focused layouts','Third-party integrations']],
+  ['Performance Optimization','Faster loads, better scores and fewer people leaving before the page appears.',['Speed audits and fixes','Image and script optimization','Caching and hosting tuning']],
+  ['Technical SEO Support','The behind-the-scenes fixes that help search engines read your site properly.',['Site structure and metadata','Crawl and indexing issues','Core web vitals improvements']],
+  ['Landing Pages','Focused single pages built to get one job done, like a sign-up or a sale.',['Message-first layouts','Fast, responsive builds','Forms and tracking hooks']],
+  ['Website Maintenance & Troubleshooting','Updates, fixes and migrations so your site stays healthy.',['Bug fixing and updates','Website migration','Hosting and cPanel support']]
+];
+
+/* =============================================================
+   Helpers
+   ============================================================= */
+const $=(s,c=document)=>c.querySelector(s), $$=(s,c=document)=>[...c.querySelectorAll(s)];
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FINE = matchMedia('(hover:hover) and (pointer:fine)').matches;
+if(RM) document.documentElement.classList.add('rm');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const host=u=>{try{return new URL(u).host.replace(/^www\./,'')}catch(e){return u}};
+const shot=p=>SHOTS[p.id]||('https://s0.wp.com/mshots/v1/'+encodeURIComponent(p.u)+'?w=1400&h=900');
+const D=id=>DETAILS[id]||{};
+
+/* portraits fallback */
+$$('.portrait img').forEach(img=>{img.src=PORTRAIT_URL;img.addEventListener('error',()=>img.parentElement.classList.add('noimg'))});
+
+/* =============================================================
+   Build content
+   ============================================================= */
+$('#enjoyGrid').innerHTML = ENJOY.map(([e,t,c])=>`<div class="ecard toy ${c}" data-tilt data-mag-soft><span class="em">${e}</span><h3>${t}</h3></div>`).join('');
+
+const tagColors=['var(--sun)','var(--mint)','var(--coral)','var(--cobalt)','var(--violet)'];
+const mkTags=(arr,cls,el)=>{ $(el).innerHTML=arr.map((t,i)=>`<span class="tag ${cls}" data-cursor="DRAG" data-d style="background:${tagColors[i%5]};${cls==='t1'&&(i%5===3||i%5===4)?'color:#fff;':''}animation-delay:${-(i*.7)}s">${esc(t)}</span>`).join('') };
+mkTags(CORE,'t1','#t1'); mkTags(SUPPORT,'t2','#t2'); mkTags(SECOND,'t3','#t3');
+
+const shapeIcon=i=>{const c=['#3b5bff','#ff6b7a','#42e2a8','#8a5cff','#ffcf3f'][i%5];
+  const s=[`<circle cx="28" cy="28" r="20"/>`,`<rect x="8" y="8" width="40" height="40" rx="10"/>`,`<path d="M28 6l22 40H6z"/>`,`<path d="M28 4l7 17 18 2-14 12 5 18-16-10-16 10 5-18L3 23l18-2z"/>`,`<path d="M10 28a18 18 0 1136 0 18 18 0 11-36 0zM28 14a14 14 0 100 28 14 14 0 000-28z" fill-rule="evenodd"/>`][i%5];
+  return `<svg class="ic" viewBox="0 0 56 56" aria-hidden="true"><g fill="${c}" stroke="#07061c" stroke-width="3" stroke-linejoin="round">${s}</g></svg>`};
+$('#svcs').innerHTML=SERVICES.map((s,i)=>`<div class="svc"><button class="svc-h" aria-expanded="false" aria-controls="sp${i}" id="sh${i}"><span class="n">${String(i+1).padStart(2,'0')}</span><span class="t">${esc(s[0])}</span>${shapeIcon(i)}<span class="pl" aria-hidden="true">+</span></button><div class="svc-p" id="sp${i}" role="region" aria-labelledby="sh${i}"><div><div class="in"><p>${esc(s[1])}</p><ul>${s[2].map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div></div></div>`).join('');
+$$('.svc-h').forEach(b=>b.addEventListener('click',()=>{const o=b.parentElement.classList.toggle('open');b.setAttribute('aria-expanded',o)}));
+
+const card=(p,i)=>{const d=D(p.id);const tags=[d.category||'Live website',d.platform,d.role,d.year].filter(Boolean);
+ return `<div class="pc"><article class="pc-in" data-tilt data-cursor="VIEW"><div class="pc-num">${String(i+1).padStart(2,'0')}</div>
+ <div class="pc-shot"><img src="${shot(p)}" alt="Screenshot of ${esc(p.n)} website" loading="lazy" referrerpolicy="no-referrer"><div class="fb">${esc(p.n[0])}</div></div>
+ <div class="pc-body"><div><h3>${esc(p.n)}</h3><div class="host">${esc(host(p.u))}</div></div>
+ <a class="btn pc-go" href="${p.u}" target="_blank" rel="noopener" data-cursor="OPEN" data-o aria-label="Open ${esc(p.n)} live website">Live site</a>
+ <div class="pc-tags">${tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div></div></article></div>`};
+$('#htrack').innerHTML=PROJECTS.map(card).join('')+`<div class="pc-end"><div><p>Want to see the rest?</p><a class="btn mag" href="https://clicknexasolution.com/portfolio/" target="_blank" rel="noopener" data-cursor="OPEN" data-o>EXPLORE ALL PROJECTS →</a></div></div>`;
+$$('.pc-shot img, .cshot img').forEach(im=>im.addEventListener('error',()=>im.parentElement.classList.add('noimg')));
+
+/* case files */
+const FIELDS=[['Project',null],['Industry','industry'],['Platform','platform'],['My contribution','contribution'],['Website type','type'],['Technology','tech'],['Challenge','challenge'],['Approach','approach']];
+$('#tabs').innerHTML=CASE_IDS.map((id,i)=>{const p=PROJECTS.find(x=>x.id===id);return `<button class="tab" role="tab" aria-selected="${i===0}" data-id="${id}">${esc(p.n)}</button>`}).join('');
+function showCase(id,animate){
+  const p=PROJECTS.find(x=>x.id===id),d=D(id);
+  const f=FIELDS.map(([l,k])=>{const v=k?d[k]:p.n;const full=(k==='contribution'||k==='challenge'||k==='approach')?' full':'';return `<div class="cf${full}"><small>${l}</small>${v?esc(v):'<span class="soon">Details coming soon</span>'}</div>`}).join('');
+  $('#cpanel').innerHTML=`<div class="cshot"><img src="${shot(p)}" alt="Visual result: ${esc(p.n)} website" referrerpolicy="no-referrer"><div class="fb">${esc(p.n[0])}</div></div><div class="cgrid">${f}</div><a class="btn mag" href="${p.u}" target="_blank" rel="noopener" data-cursor="OPEN" data-o>Live website →</a>`;
+  $('.cshot img').addEventListener('error',e=>e.target.parentElement.classList.add('noimg'));
+  if(animate&&window.gsap&&!RM) gsap.from('#cpanel > *',{y:24,opacity:0,duration:.5,stagger:.08,ease:'power3.out'});
+}
+showCase(CASE_IDS[0]);
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;$$('.tab').forEach(t=>t.setAttribute('aria-selected',t===b));showCase(b.dataset.id,true)});
+
+/* =============================================================
+   Nav, menu, smooth scroll
+   ============================================================= */
+let lenis=null;
+if(!RM && window.Lenis){lenis=new Lenis({lerp:.09,smoothWheel:true});}
+const goTo=(hash)=>{const el=$(hash);if(!el)return;lenis?lenis.scrollTo(el,{offset:0,duration:1.3}):el.scrollIntoView({behavior:RM?'auto':'smooth'})};
+const burger=$('#burger'),menu=$('#menu');
+const setMenu=o=>{burger.classList.toggle('open',o);menu.classList.toggle('open',o);burger.setAttribute('aria-expanded',o);menu.setAttribute('aria-hidden',!o);burger.setAttribute('aria-label',o?'Close menu':'Open menu');lenis&&(o?lenis.stop():lenis.start());document.body.style.overflow=o&&!lenis?'hidden':''};
+burger.addEventListener('click',()=>setMenu(!menu.classList.contains('open')));
+document.addEventListener('click',e=>{const a=e.target.closest('[data-go]');if(!a)return;e.preventDefault();setMenu(false);setTimeout(()=>goTo(a.getAttribute('href')),menu.classList.contains('open')?0:0)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')setMenu(false)});
+
+/* scroll state: nav, rail, active section */
+const nav=$('#nav'),knob=$('#knob'),fill=$('#railFill'),pct=$('#pct'),lab=$('#railLabel');
+const secs=$$('[data-sec]');const links=$$('#nav ul a');
+function onScroll(){
+  const y=scrollY,max=Math.max(1,document.documentElement.scrollHeight-innerHeight),p=Math.min(1,Math.max(0,y/max));
+  nav.classList.toggle('scrolled',y>60);
+  const rh=$('#rail').clientHeight-knob.offsetHeight;
+  knob.style.transform=`translateY(${p*rh}px) rotate(${p*540}deg)`;
+  pct.style.transform=`rotate(${-p*540}deg)`;
+  fill.style.height=(p*100)+'%';pct.textContent=Math.round(p*100);
+  let cur=secs[0];for(const s of secs){if(s.getBoundingClientRect().top<innerHeight*.45)cur=s}
+  const name=cur.dataset.sec;lab.textContent=name;
+  links.forEach(a=>a.classList.toggle('on',a.textContent.toUpperCase()===name));
+}
+addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll);onScroll();
+
+/* =============================================================
+   Cursor (desktop, fine pointer, motion allowed)
+   ============================================================= */
+if(FINE&&!RM){
+  document.body.classList.add('has-cursor');
+  const cur=$('#cur'),ring=$('#ring');let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
+  addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.transform=`translate(${mx}px,${my}px)`;
+    const t=e.target.closest('[data-cursor],a,button,.tilt,[data-tilt]');
+    const lbl=e.target.closest('[data-cursor]');
+    ring.classList.toggle('hov',!!t&&!lbl);
+    ring.classList.toggle('lbl',!!lbl);ring.classList.toggle('o',!!lbl&&lbl.hasAttribute('data-o'));ring.classList.toggle('d',!!lbl&&lbl.hasAttribute('data-d'));
+    ring.textContent=lbl?lbl.dataset.cursor:'';
+  },{passive:true});
+  document.addEventListener('mouseleave',()=>ring.classList.add('dn'));document.addEventListener('mouseenter',()=>ring.classList.remove('dn'));
+  (function loop(){rx+=(mx-rx)*.18;ry+=(my-ry)*.18;ring.style.transform=`translate(${rx}px,${ry}px)`;requestAnimationFrame(loop)})();
+}
+
+/* =============================================================
+   Tilt, magnetic, draggable tags, hero light
+   ============================================================= */
+if(FINE&&!RM){
+  $$('[data-tilt]').forEach(el=>{
+    const max=el.classList.contains('pc-in')?7:11;
+    el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+      el.style.setProperty('--mx',x*100+'%');el.style.setProperty('--my',y*100+'%');
+      gsap.to(el,{rotateY:(x-.5)*max*2,rotateX:-(y-.5)*max*2,transformPerspective:900,duration:.4,ease:'power2.out'})});
+    el.addEventListener('pointerleave',()=>gsap.to(el,{rotateX:0,rotateY:0,duration:.7,ease:'elastic.out(1,.5)'}));
+  });
+  $$('.mag').forEach(el=>{
+    el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();gsap.to(el,{x:(e.clientX-r.left-r.width/2)*.28,y:(e.clientY-r.top-r.height/2)*.4,duration:.3})});
+    el.addEventListener('pointerleave',()=>gsap.to(el,{x:0,y:0,duration:.8,ease:'elastic.out(1,.4)'}));
+  });
+}
+/* draggable tags (mouse + touch) */
+$$('.tag').forEach(el=>{
+  let sx=0,sy=0,drag=false;
+  el.addEventListener('pointerdown',e=>{drag=true;sx=e.clientX-(gsap.getProperty(el,'x')||0);sy=e.clientY-(gsap.getProperty(el,'y')||0);el.setPointerCapture(e.pointerId);el.style.zIndex=5;el.style.animation='none'});
+  el.addEventListener('pointermove',e=>{if(drag)gsap.set(el,{x:e.clientX-sx,y:e.clientY-sy,rotate:(e.clientX-sx)*.05})});
+  const end=()=>{if(!drag)return;drag=false;gsap.to(el,{x:0,y:0,rotate:0,duration:1,ease:'elastic.out(1,.45)',onComplete:()=>{el.style.zIndex='';el.style.animation=''}})};
+  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
+});
+/* hero light */
+const home=$('#home');
+home.addEventListener('pointermove',e=>{const r=home.getBoundingClientRect();home.style.setProperty('--lx',(e.clientX-r.left)+'px');home.style.setProperty('--ly',(e.clientY-r.top)+'px')},{passive:true});
+const portrait=$('#heroPortrait');
+if(FINE&&!RM){home.addEventListener('pointermove',e=>{const x=e.clientX/innerWidth-.5,y=e.clientY/innerHeight-.5;
+  gsap.to(portrait,{rotateY:x*12,rotateX:-y*8,x:x*14,duration:.8,ease:'power3.out'});
+  gsap.to('.badge',{x:x*-18,y:y*-10,duration:1,ease:'power3.out'})})}
+
+/* =============================================================
+   3D scene (lazy)
+   ============================================================= */
+const mouse={x:0,y:0};addEventListener('pointermove',e=>{mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight*2-1)},{passive:true});
+function initThree(){
+  const canvas=$('#gl');let renderer;
+  try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true})}catch(e){canvas.remove();return}
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));
+  const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(35,1,.1,100);cam.position.set(0,0,14);
+  scene.add(new THREE.HemisphereLight(0xdfe6ff,0x2a1f6b,1.15));
+  const key=new THREE.DirectionalLight(0xfff0cc,1.15);key.position.set(4,6,8);scene.add(key);
+  const glow=new THREE.PointLight(0x8aa0ff,2.4,40);glow.position.set(0,0,7);scene.add(glow);
+  const world=new THREE.Group();scene.add(world);
+  const outlineMat=new THREE.MeshBasicMaterial({color:0x07061c,side:THREE.BackSide});
+  const toy=(geo,color,rough)=>{const g=new THREE.Group();const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color,roughness:rough??.38,metalness:.08}));const o=new THREE.Mesh(geo,outlineMat);o.scale.setScalar(1.07);g.add(m,o);return g};
+  const ext=(pts,holes,d)=>{const s=new THREE.Shape();pts.forEach((p,i)=>i?s.lineTo(p[0],p[1]):s.moveTo(p[0],p[1]));
+    (holes||[]).forEach(h=>{const hp=new THREE.Path();h.forEach((p,i)=>i?hp.lineTo(p[0],p[1]):hp.moveTo(p[0],p[1]));s.holes.push(hp)});
+    const g=new THREE.ExtrudeGeometry(s,{depth:d,bevelEnabled:true,bevelThickness:.14,bevelSize:.12,bevelSegments:5,curveSegments:8});g.center();return g};
+  const A=ext([[-1,-1],[-.6,-1],[-.43,-.5],[.43,-.5],[.6,-1],[1,-1],[.22,1],[-.22,1]],[[[-.29,-.15],[.29,-.15],[0,.55]]],.7);
+  const L=ext([[-.5,-1],[.9,-1],[.9,-.6],[-.1,-.6],[-.1,1],[-.5,1]],null,.7);
+  const mono=new THREE.Group();
+  const a=toy(A,0x3b5bff,.3),l=toy(L,0xffcf3f,.3);a.position.x=-1.25;l.position.x=1.1;l.position.y=-.02;mono.add(a,l);world.add(mono);
+  const extras=[
+    [toy(new THREE.TorusGeometry(.55,.22,16,32),0xff6b7a),[-5.6,2.6,-1],.9],
+    [toy(new THREE.IcosahedronGeometry(.6,0),0x42e2a8),[-3.6,-2.6,1],1.2],
+    [toy(new THREE.OctahedronGeometry(.6,0),0xffcf3f),[6.2,3.1,-2],1],
+    [toy(new THREE.BoxGeometry(.8,.8,.8),0x8a5cff),[6.6,-2.8,0],.8],
+    [toy(new THREE.SphereGeometry(.42,24,16),0xff6b7a),[1.2,3.6,-2],1.4],
+    [toy(new THREE.ConeGeometry(.5,.9,4),0x42e2a8),[-1.2,-3.5,-1],1.1]
+  ];
+  extras.forEach(([o,p])=>{o.position.set(...p);world.add(o)});
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(3.6,.05,8,90),new THREE.MeshBasicMaterial({color:0x8aa0ff,transparent:true,opacity:.55}));ring.rotation.x=1.15;mono.add(ring);
+  const N=140,pos=new Float32Array(N*3);for(let i=0;i<N;i++){pos[i*3]=(Math.random()-.5)*26;pos[i*3+1]=(Math.random()-.5)*14;pos[i*3+2]=(Math.random()-.5)*8-3}
+  const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0xfff6e3,size:.06,transparent:true,opacity:.7}));world.add(pts);
+  let vh=8.83,vw=15,desk=true;
+  function size(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();
+    vh=2*14*Math.tan(THREE.MathUtils.degToRad(17.5));vw=vh*cam.aspect;desk=w>1000;
+    mono.scale.setScalar(desk?.9:.55);mono.position.set(desk?vw*.24:0,desk?.3:vh*.3,-1)}
+  size();addEventListener('resize',size);
+  let t0=performance.now();
+  function frame(now){requestAnimationFrame(frame);
+    const y=scrollY;if(y>innerHeight*1.7)return;const t=(now-t0)/1000;
+    const sc=y/innerHeight;world.position.y=y*(vh/innerHeight);
+    const spin=RM?0:1;
+    mono.rotation.y=Math.sin(t*.6)*.35*spin+mouse.x*.45+sc*1.4;
+    mono.rotation.x=-mouse.y*.25+Math.sin(t*.4)*.08*spin;
+    mono.position.y=(desk?.3:vh*.3)+Math.sin(t*.9)*.18*spin;
+    ring.rotation.z=t*.3*spin;
+    extras.forEach(([o],i)=>{const s=extras[i][2];o.rotation.x=t*.4*s*spin+sc;o.rotation.y=t*.5*s*spin;o.position.y+=Math.sin(t*s+i)*.0035*spin});
+    pts.rotation.y=t*.02*spin;
+    glow.position.x=mouse.x*7;glow.position.y=mouse.y*4;
+    renderer.render(scene,cam);
+  }
+  requestAnimationFrame(frame);
+  window.gsap&&gsap.from(canvas,{opacity:0,duration:1.6,ease:'power2.out'});
+}
+function loadThree(){const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';s.onload=()=>{try{initThree()}catch(e){console.warn(e)}};s.onerror=()=>$('#gl')?.remove();document.head.appendChild(s)}
+
+/* =============================================================
+   Animation
+   ============================================================= */
+function heroIntro(){
+  if(RM||!window.gsap)return;
+  const tl=gsap.timeline({defaults:{ease:'power3.out'}});
+  tl.from('#heroMeta .chip',{y:20,opacity:0,duration:.6,stagger:.08},.1)
+    .from('#heroWho',{opacity:0,x:-20,duration:.6},.3)
+    .from('#heroH1 .ln span',{y:70,opacity:0,filter:'blur(8px)',duration:1,stagger:.16},.4)
+    .from('#heroSub',{y:24,opacity:0,duration:.8},1.1)
+    .from('.blob',{scale:.6,opacity:0,rotate:-12,duration:1.2,ease:'back.out(1.6)'},.5)
+    .from('#heroPortrait',{y:80,opacity:0,filter:'blur(8px)',duration:1.1},.8)
+    .from('.badge',{scale:0,opacity:0,duration:.7,stagger:.14,ease:'back.out(2)'},1.3)
+    .from('#heroCta .btn',{y:30,opacity:0,duration:.7,stagger:.12},1.6);
+}
+function setupScroll(){
+  if(RM||!window.gsap||!window.ScrollTrigger)return;
+  gsap.registerPlugin(ScrollTrigger);
+  if(lenis){lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add(t=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0)}
+  /* statement — words */
+  const big=$('#stmtBig'),words=big.textContent.trim().split(/\s+/);
+  big.innerHTML=words.map(w=>`<span class="w">${esc(w)}</span>`).join(' ');
+  const ws=$$('.w',big);
+  gsap.fromTo(ws,{opacity:.12},{opacity:1,ease:'none',stagger:.15,scrollTrigger:{trigger:'.stmt',start:'top 70%',end:'bottom 55%',scrub:true}});
+  ws.forEach((w,i)=>gsap.fromTo(w,{y:(i%3+1)*26},{y:0,ease:'none',scrollTrigger:{trigger:'.stmt',start:'top 85%',end:'center 45%',scrub:true}}));
+  gsap.from('.stmt .sub',{opacity:0,y:30,scrollTrigger:{trigger:'.stmt .sub',start:'top 90%',toggleActions:'play none none none'}});
+  /* headings */
+  $$('[data-rv]').forEach(el=>gsap.from(el,{y:60,opacity:0,filter:'blur(8px)',duration:1,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',once:true}}));
+  /* about */
+  gsap.from('.pcard',{rotate:-6,y:60,opacity:0,duration:1.1,ease:'power3.out',scrollTrigger:{trigger:'.pcard',start:'top 85%',once:true}});
+  gsap.from('.coin',{scale:0,rotate:-140,duration:1.1,ease:'back.out(1.7)',scrollTrigger:{trigger:'.pcard',start:'top 60%',once:true}});
+  gsap.from('.fact',{y:30,opacity:0,stagger:.1,duration:.7,scrollTrigger:{trigger:'.facts',start:'top 85%',once:true}});
+  /* enjoy cards — pop in like toys */
+  gsap.from('.ecard',{y:80,rotate:()=>gsap.utils.random(-8,8),opacity:0,stagger:.08,duration:.9,ease:'back.out(1.5)',scrollTrigger:{trigger:'#enjoyGrid',start:'top 80%',once:true}});
+  /* horizontal work */
+  const track=$('#htrack'),wrap=$('#hwrap');
+  const dist=()=>Math.max(0,track.scrollWidth-innerWidth);
+  const mm=gsap.matchMedia();
+  mm.add('(min-width:1px)',()=>{
+    const tween=gsap.to(track,{x:()=>-dist(),ease:'none',scrollTrigger:{trigger:wrap,start:'top top',end:()=>'+='+dist(),pin:true,scrub:.6,anticipatePin:1,invalidateOnRefresh:true,
+      onUpdate:s=>{const n=Math.min(12,Math.max(1,Math.round(s.progress*11)+1));$('#hnum').textContent=String(n).padStart(2,'0')+' / 12';$('#hbar').style.width=(s.progress*100)+'%'}}});
+    $$('.pc').forEach(c=>{
+      gsap.fromTo(c,{rotateY:24,scale:.9},{rotateY:-24,scale:.9,ease:'none',scrollTrigger:{trigger:c,containerAnimation:tween,start:'left 100%',end:'right 0%',scrub:true}});
+      gsap.fromTo(c,{scale:.88},{scale:1,ease:'none',scrollTrigger:{trigger:c,containerAnimation:tween,start:'left 95%',end:'left 45%',scrub:true}});
+      const im=$('.pc-shot img',c);if(im)gsap.fromTo(im,{xPercent:-4},{xPercent:4,ease:'none',scrollTrigger:{trigger:c,containerAnimation:tween,start:'left right',end:'right left',scrub:true}});
+    });
+  });
+  /* experience */
+  gsap.to('#tlFill',{scaleY:1,ease:'none',scrollTrigger:{trigger:'#tl',start:'top 65%',end:'bottom 70%',scrub:true}});
+  $$('.tli').forEach(t=>gsap.from(t,{x:-40,opacity:0,duration:.9,ease:'power3.out',scrollTrigger:{trigger:t,start:'top 80%',once:true}}));
+  /* skills pop */
+  gsap.from('.tag',{scale:0,rotate:()=>gsap.utils.random(-25,25),opacity:0,stagger:.04,duration:.7,ease:'back.out(2)',scrollTrigger:{trigger:'#skills',start:'top 60%',once:true}});
+  /* services */
+  gsap.from('.svc',{x:-60,opacity:0,stagger:.07,duration:.8,ease:'power3.out',scrollTrigger:{trigger:'#svcs',start:'top 80%',once:true}});
+  /* contact */
+  gsap.from('#contact h2',{scale:.85,opacity:0,duration:1,ease:'back.out(1.4)',scrollTrigger:{trigger:'#contact',start:'top 65%',once:true}});
+  window.addEventListener('load',()=>ScrollTrigger.refresh());
+}
+
+/* =============================================================
+   Boot: loader -> intro -> 3D
+   ============================================================= */
+function boot(){
+  const L=$('#loader');
+  const done=()=>{L.style.display='none';heroIntro();loadThree()};
+  if(RM||!window.gsap){done();setupScroll();return}
+  const o={v:0};
+  setupScroll();
+  gsap.to(o,{v:100,duration:1.3,ease:'power1.inOut',onUpdate:()=>{$('#ldFill').style.width=o.v+'%';$('#ldN').textContent=Math.round(o.v)+'%'},
+    onComplete:()=>gsap.to(L,{yPercent:-100,duration:.8,ease:'power4.inOut',onComplete:done})});
+}
+boot();
+</script>
+</body>
+</html>
